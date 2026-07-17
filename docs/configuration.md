@@ -4,6 +4,22 @@
 
 Located at `~/.config/startpaac/config` (override with `STARTPAC_CONFIG_FILE` env var).
 
+### Gosmee delivery diagnostics
+
+When startpaac starts Gosmee, it enables structured debug logging and retries
+target delivery failures. Override these settings in the configuration file or
+environment when needed:
+
+```bash
+GOSMEE_LOG_LEVEL=debug
+GOSMEE_TARGET_TIMEOUT=5
+GOSMEE_TARGET_RETRIES=5
+```
+
+The timeout is in seconds. Gosmee writes JSON records containing delivery and
+stream identifiers, making failures searchable with `jq` in the pod logs or
+the `/tmp/save` replay directory.
+
 ```bash
 # Path to your pipelines-as-code checkout (auto-detected if unset)
 PAC_DIR=~/go/src/github.com/tektoncd/pipelines-as-code
