@@ -42,6 +42,9 @@ INSTALL_FORGE=${INSTALL_FORGE:-"true"}
 PAC_PASS_SECOND_FOLDER=${PAC_PASS_SECOND_FOLDER:-}
 PAC_DEBUG_IMAGE=${PAC_DEBUG_IMAGE:-registry.access.redhat.com/ubi9/ubi-minimal}
 PAC_IMAGE_NONROOT=${PAC_IMAGE_NONROOT:-"true"}
+GOSMEE_LOG_LEVEL=${GOSMEE_LOG_LEVEL:-debug}
+GOSMEE_TARGET_TIMEOUT=${GOSMEE_TARGET_TIMEOUT:-5}
+GOSMEE_TARGET_RETRIES=${GOSMEE_TARGET_RETRIES:-5}
 
 # Component installation preferences
 PREFERENCES_FILE="${HOME}/.config/startpaac/preferences.json"
@@ -123,7 +126,7 @@ EOF
   else
     cat <<EOF
   GOSMEE:
-  gosmee client --saveDir /tmp/replay ${smee_url} ${protocol}://${PAC}
+  gosmee client --output json --log-level ${GOSMEE_LOG_LEVEL} --target-connection-timeout ${GOSMEE_TARGET_TIMEOUT} --target-retries ${GOSMEE_TARGET_RETRIES} --saveDir /tmp/replay ${smee_url} ${protocol}://${PAC}
 EOF
   fi
 }
@@ -604,7 +607,7 @@ function start_user_gosmee() {
   [[ -e ${HOME}/.config/systemd/user/${service}.service ]] || {
     if [[ -n ${smeeurl} ]]; then
       show_step "Run gosmee manually"
-      echo "gosmee client --saveDir /tmp/replay ${smeeurl} ${protocol}://${controllerURL}"
+      echo "gosmee client --output json --log-level ${GOSMEE_LOG_LEVEL} --target-connection-timeout ${GOSMEE_TARGET_TIMEOUT} --target-retries ${GOSMEE_TARGET_RETRIES} --saveDir /tmp/replay ${smeeurl} ${protocol}://${controllerURL}"
     else
       echo "Skipping running gosmee: cannot find ${HOME}/.config/systemd/user/${service}.service"
     fi

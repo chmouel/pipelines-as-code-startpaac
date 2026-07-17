@@ -81,6 +81,12 @@ elif [[ -z ${PAC_DIR:-} ]]; then
 # PAC_WEBHOOK_NODEPORT: The NodePort to use for the PAC webhook (default: 30080)
 # PAC_WEBHOOK_NODEPORT=30080
 
+# Gosmee delivery diagnostics. These values are passed to every Gosmee client
+# started by startpaac, including the in-cluster deployment.
+# GOSMEE_LOG_LEVEL=debug
+# GOSMEE_TARGET_TIMEOUT=5
+# GOSMEE_TARGET_RETRIES=5
+
 # We are defaulting to a local install
 PAC_DIR=~/go/src/github.com/tektoncd/pac/main
 PAC_SECRET_FOLDER=~/.local/share/startpaac/secrets
