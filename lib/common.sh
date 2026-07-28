@@ -361,6 +361,12 @@ spec:
               "client",
               "--output",
               "json",
+              "--log-level",
+              "${GOSMEE_LOG_LEVEL:-debug}",
+              "--target-connection-timeout",
+              "${GOSMEE_TARGET_TIMEOUT:-5}",
+              "--target-retries",
+              "${GOSMEE_TARGET_RETRIES:-5}",
               "--saveDir",
               "/tmp/save",
               "$smeeURL",
@@ -381,6 +387,9 @@ export_hook_environment() {
         DOMAIN_NAME
         FORCE_INTERACTIVE
         FORGE_HOST
+        GOSMEE_LOG_LEVEL
+        GOSMEE_TARGET_RETRIES
+        GOSMEE_TARGET_TIMEOUT
         HOOKS_DIR
         INSTALL_CUSTOM_OBJECT
         INSTALL_CUSTOM_OBJECT_ENABLED
