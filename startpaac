@@ -136,6 +136,10 @@ EOF
   fi
 }
 
+# Downloaded manifests are cached and downloaded again once they are older than
+# CACHE_MAX_AGE_DAYS, so the "latest" releases do not stay stuck on an old version.
+CACHE_MAX_AGE_DAYS=${CACHE_MAX_AGE_DAYS:-21}
+
 cache_yaml_file() {
   local type="$1"
   local url="$2"
@@ -143,8 +147,14 @@ cache_yaml_file() {
   local filename="${cache_dir}/${type}.yaml"
   mkdir -p "${cache_dir}"
 
+  if [[ -e "${filename}" ]] && [[ -n $(find "${filename}" -mtime +$((CACHE_MAX_AGE_DAYS - 1))) ]]; then
+    echo "Cached ${type} manifest is older than ${CACHE_MAX_AGE_DAYS} days, downloading it again" >&2
+    rm -f "${filename}"
+  fi
+
   if [[ ! -e "${filename}" ]]; then
-    curl --progress-bar -L --location --retry 10 --retry-max-time 10 -o "${filename}" "${url}"
+    curl --fail --progress-bar -L --location --retry 10 --retry-max-time 10 -o "${filename}.tmp" "${url}" &&
+      mv "${filename}.tmp" "${filename}"
   fi
   echo "${filename}"
 }
@@ -266,7 +276,7 @@ install_registry() {
 install_tekton() {
   local release_yaml
   show_step "Deploying Tekton"
-  release_yaml=$(cache_yaml_file tekton https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml)
+  release_yaml=$(cache_yaml_file tekton https://infra.tekton.dev/tekton-releases/pipeline/latest/release.yaml)
   kubectl apply --filename "${release_yaml}" >/dev/null
   wait_for_resource endpoint tekton-pipelines tekton-pipelines-webhook
   wait_for_resource pod tekton-pipelines app=tekton-pipelines-webhook
@@ -289,7 +299,7 @@ install_tekton() {
 install_triggers() {
   local release_yaml
   show_step "Deploying Tekton Triggers"
-  release_yaml=$(cache_yaml_file tekton-triggers https://storage.googleapis.com/tekton-releases/triggers/latest/release.yaml)
+  release_yaml=$(cache_yaml_file tekton-triggers https://infra.tekton.dev/tekton-releases/triggers/latest/release.yaml)
   kubectl apply --filename "${release_yaml}" >/dev/null
   wait_for_resource endpoint tekton-pipelines tekton-triggers-webhook
 }
@@ -297,7 +307,7 @@ install_triggers() {
 install_chains() {
   local release_yaml
   show_step "Deploying Tekton Chains"
-  release_yaml=$(cache_yaml_file tekton-chains https://storage.googleapis.com/tekton-releases/chains/latest/release.yaml)
+  release_yaml=$(cache_yaml_file tekton-chains https://infra.tekton.dev/tekton-releases/chains/latest/release.yaml)
   kubectl apply --filename "${release_yaml}" >/dev/null
   wait_for_resource deployment tekton-chains tekton-chains-controller
 }
@@ -305,7 +315,7 @@ install_chains() {
 install_dashboard() {
   local release_yaml
   show_step "Deploying Tekton Dashboard"
-  release_yaml=$(cache_yaml_file dashboard https://storage.googleapis.com/tekton-releases/dashboard/latest/release.yaml)
+  release_yaml=$(cache_yaml_file dashboard https://infra.tekton.dev/tekton-releases/dashboard/latest/release.yaml)
   kubectl apply --filename "${release_yaml}" >/dev/null
   create_httproute tekton-pipelines tekton-dashboard ${DASHBOARD} 9097
 }
