@@ -341,7 +341,7 @@ Host              Kind Node
 
 ### Cache Locations
 
-- **YAML Cache**: `~/.cache/startpaac/` (downloaded manifests)
+- **YAML Cache**: `~/.cache/startpaac/` (downloaded manifests, downloaded again after `CACHE_MAX_AGE_DAYS`, 21 days by default)
 - **TLS Certificates**: `/tmp/certs/` (minica-generated)
 - **Kubeconfig**: `~/.kube/config.<domain>` (per-environment)
 - **Preferences**: `~/.config/startpaac/preferences.json` (JSON)
